@@ -9,16 +9,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         val etName = findViewById<EditText>(R.id.etName)
         val etEmail = findViewById<EditText>(R.id.etEmail)
@@ -47,9 +50,22 @@ class RegisterActivity : AppCompatActivity() {
                         user?.updateProfile(profileUpdates)
                             ?.addOnCompleteListener { profileTask ->
                                 if (profileTask.isSuccessful) {
-                                    Toast.makeText(this, "Registro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-                                    startActivity(Intent(this, LoginActivity::class.java))
-                                    finish()
+                                    val userMap = hashMapOf(
+                                        "name" to name,
+                                        "email" to email,
+                                        "uid" to user.uid,
+                                    )
+
+                                    db.collection("users").document(user.uid)
+                                        .set(userMap)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(this, "Registro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                                            startActivity(Intent(this, LoginActivity::class.java))
+                                            finish()
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Toast.makeText(this, "Erro ao salvar dados: ${e.message}", Toast.LENGTH_LONG).show()
+                                        }
                                 }
                             }
                     } else {
