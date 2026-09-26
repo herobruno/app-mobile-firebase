@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/gray_light"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <!-- Header / Top Bar -->
@@ -13,14 +15,16 @@
         android:background="?attr/colorPrimary"
         android:paddingHorizontal="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:text="Início"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Menu"
+            app:srcCompat="@drawable/ic_menu"
+            app:tint="?attr/colorOnPrimary" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -45,7 +49,7 @@
                 android:layout_marginStart="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Sair"
-                app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
+                app:srcCompat="@drawable/ic_logout"
                 app:tint="?attr/colorOnPrimary" />
 
         </LinearLayout>
@@ -66,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bem-vindo!"
-            android:textColor="?android:attr/textColorPrimary"
+            android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -75,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="Eventos disponíveis para inscrição"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="@color/gray_text"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -98,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Nenhum evento disponível no momento."
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="@color/gray_text"
             android:textSize="16sp"
             android:visibility="gone" />
 

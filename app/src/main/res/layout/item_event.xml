@@ -93,12 +93,14 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSubscribe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:text="Inscrever-se" />
+                    android:text="Inscrever-se"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/primary_blue" />
 
             </RelativeLayout>
 

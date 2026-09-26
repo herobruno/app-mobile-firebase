@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -48,6 +49,7 @@ class HomeActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         tvEmpty = findViewById(R.id.tvEmpty)
 
+        val btnMenu = findViewById<ImageButton>(R.id.btnMenu)
         val btnProfile = findViewById<ImageButton>(R.id.btnProfile)
         val btnLogout = findViewById<ImageButton>(R.id.btnLogout)
 
@@ -62,6 +64,20 @@ class HomeActivity : AppCompatActivity() {
 
         // Popula automaticamente a coleção 'events' no Firestore caso esteja vazia
         EventSeeder.seedEventsIfEmpty()
+
+        btnMenu.setOnClickListener { view ->
+            val popup = PopupMenu(this, view)
+            popup.menu.add(0, 1, 0, "Início")
+            popup.setOnMenuItemClickListener { item ->
+                if (item.itemId == 1) {
+                    rvEvents.scrollToPosition(0)
+                    true
+                } else {
+                    false
+                }
+            }
+            popup.show()
+        }
 
         btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))

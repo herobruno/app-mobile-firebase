@@ -9,21 +9,7 @@ object EventSeeder {
 
     fun seedEventsIfEmpty(onComplete: ((Boolean) -> Unit)? = null) {
         val db = FirebaseFirestore.getInstance()
-
-        db.collection("events").get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot == null || snapshot.isEmpty) {
-                    Log.d(TAG, "Coleção 'events' vazia. Iniciando criação de eventos fictícios...")
-                    createSampleEvents(db, onComplete)
-                } else {
-                    Log.d(TAG, "Coleção 'events' já possui ${snapshot.size()} documentos. Nenhum evento criado.")
-                    onComplete?.invoke(false)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Erro ao verificar coleção 'events': ${e.message}", e)
-                onComplete?.invoke(false)
-            }
+        createSampleEvents(db, onComplete)
     }
 
     private fun createSampleEvents(db: FirebaseFirestore, onComplete: ((Boolean) -> Unit)?) {
@@ -48,7 +34,7 @@ object EventSeeder {
                 category = "Inteligência Artificial",
                 maxParticipants = 40,
                 subscribers = emptyList(),
-                imageUrl = "https://images.unsplash.com/photo-1677442136019-21780efad99a",
+                imageUrl = "https://images.unsplash.com/photo-1485827404703-89b55fcc595e",
             ),
             Event(
                 id = "event_3",
@@ -92,14 +78,14 @@ object EventSeeder {
             db.collection("events").document(event.id).set(event)
                 .addOnSuccessListener {
                     insertedCount++
-                    Log.d(TAG, "Evento '${event.title}' inserido com sucesso (${insertedCount}/${sampleEvents.size}).")
+                    Log.d(TAG, "Evento '${event.title}' sincronizado com sucesso (${insertedCount}/${sampleEvents.size}).")
                     if (insertedCount == sampleEvents.size) {
                         onComplete?.invoke(true)
                     }
                 }
                 .addOnFailureListener { e ->
                     hasError = true
-                    Log.e(TAG, "Erro ao inserir evento '${event.title}': ${e.message}", e)
+                    Log.e(TAG, "Erro ao sincronizar evento '${event.title}': ${e.message}", e)
                     if (!hasError) {
                         onComplete?.invoke(false)
                     }
