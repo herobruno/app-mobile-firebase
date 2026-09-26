@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -34,51 +35,94 @@
 
     </RelativeLayout>
 
-    <!-- Main Content -->
-    <LinearLayout
+    <!-- Scrollable Content -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:fillViewport="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="E-mail"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/etProfileEmail"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:enabled="false"
-            android:focusable="false"
-            android:hint="E-mail"
-            android:inputType="textEmailAddress" />
+            android:orientation="vertical"
+            android:padding="24dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nome"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            <!-- Profile Form Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="E-mail"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/etProfileName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:hint="Nome de exibição"
-            android:inputType="textPersonName" />
+            <EditText
+                android:id="@+id/etProfileEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:enabled="false"
+                android:focusable="false"
+                android:hint="E-mail"
+                android:inputType="textEmailAddress" />
 
-        <Button
-            android:id="@+id/btnSaveProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Salvar Alterações" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nome"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/etProfileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Nome de exibição"
+                android:inputType="textPersonName" />
+
+            <Button
+                android:id="@+id/btnSaveProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="Salvar Alterações" />
+
+            <!-- My Subscribed Events Section -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="16dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Meus Eventos Inscritos"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvNoMyEvents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="Você ainda não está inscrito em nenhum evento."
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMyEvents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_event" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

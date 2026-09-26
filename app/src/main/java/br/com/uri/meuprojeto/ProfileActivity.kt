@@ -1,19 +1,30 @@
 package br.com.uri.meuprojeto
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class ProfileActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+
+    private lateinit var rvMyEvents: RecyclerView
+    private lateinit var tvNoMyEvents: TextView
+    private lateinit var eventAdapter: EventAdapter
+    private var myEventsListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,18 +34,30 @@ class ProfileActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        val etProfileEmail = findViewById<EditText>(R.id.etProfileEmail)
-        val etProfileName = findViewById<EditText>(R.id.etProfileName)
-        val btnSaveProfile = findViewById<Button>(R.id.btnSaveProfile)
-
         val user = auth.currentUser
         if (user == null) {
             finish()
             return
         }
 
+        val btnBack = findViewById<ImageButton>(R.id.btnBack)
+        val etProfileEmail = findViewById<EditText>(R.id.etProfileEmail)
+        val etProfileName = findViewById<EditText>(R.id.etProfileName)
+        val btnSaveProfile = findViewById<Button>(R.id.btnSaveProfile)
+
+        rvMyEvents = findViewById(R.id.rvMyEvents)
+        tvNoMyEvents = findViewById(R.id.tvNoMyEvents)
+
         etProfileEmail.setText(user.email ?: "")
+
+        // Configuração do RecyclerView para os eventos do usuário
+        rvMyEvents.layoutManager = LinearLayoutManager(this)
+        eventAdapter = EventAdapter(
+            events = emptyList(),
+            currentUserId = user.uid,
+            onSubscribeClick = { event -> toggleSubscription(event) },
+        )
+        rvMyEvents.adapter = eventAdapter
 
         // Tenta carregar o nome de exibição do Auth ou do Firestore
         if (!user.displayName.isNullOrEmpty()) {
@@ -81,7 +104,7 @@ class ProfileActivity : AppCompatActivity() {
                             .update(updates)
                             .addOnSuccessListener {
                                 Toast.makeText(this, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                                finish()
+                                btnSaveProfile.isEnabled = true
                             }
                             .addOnFailureListener { e ->
                                 Toast.makeText(this, "Erro ao atualizar no banco: ${e.message}", Toast.LENGTH_LONG).show()
@@ -89,9 +112,70 @@ class ProfileActivity : AppCompatActivity() {
                             }
                     } else {
                         Toast.makeText(this, "Erro ao atualizar perfil: ${profileTask.exception?.message}", Toast.LENGTH_LONG).show()
-                        btnSaveProfile.isEnabled = false
+                        btnSaveProfile.isEnabled = true
                     }
                 }
         }
+
+        // Carrega eventos inscritos em tempo real
+        loadMySubscribedEvents(user.uid)
+    }
+
+    private fun loadMySubscribedEvents(userId: String) {
+        myEventsListener = db.collection("events")
+            .whereArrayContains("subscribers", userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Toast.makeText(this, "Erro ao carregar seus eventos: ${error.message}", Toast.LENGTH_LONG).show()
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val myEvents = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(Event::class.java)
+                    }
+
+                    if (myEvents.isEmpty()) {
+                        tvNoMyEvents.visibility = View.VISIBLE
+                        rvMyEvents.visibility = View.GONE
+                    } else {
+                        tvNoMyEvents.visibility = View.GONE
+                        rvMyEvents.visibility = View.VISIBLE
+                        eventAdapter.updateEvents(myEvents)
+                    }
+                }
+            }
+    }
+
+    private fun toggleSubscription(event: Event) {
+        val userId = auth.currentUser?.uid ?: return
+        val eventRef = db.collection("events").document(event.id)
+
+        val isSubscribed = event.subscribers.contains(userId)
+
+        if (isSubscribed) {
+            // Cancelar inscrição
+            eventRef.update("subscribers", FieldValue.arrayRemove(userId))
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Inscrição cancelada com sucesso!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao cancelar inscrição: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+        } else {
+            // Inscrever-se
+            eventRef.update("subscribers", FieldValue.arrayUnion(userId))
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Inscrição realizada com sucesso!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao realizar inscrição: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        myEventsListener?.remove()
     }
 }
